@@ -36,7 +36,10 @@ ConstraintManagerFlow=0
 IsVirtualBomDocumentRemoved=0
 OutputPath=
 LogFolderPath=
-ManagedProjectGUID=
+ManagedProjectGUID=8E852DA0-834E-4582-AB94-FDCA2E669B72
+VaultGUID=1ed2bde7-c90f-444f-ab5b-27e7bad4f025
+ReleaseVaultName=Jonathon Wang - University of Toronto
+ItemGUID=8E852DA0-834E-4582-AB94-FDCA2E669B72
 IncludeDesignInRelease=0
 CrossRefSheetStyle=1
 CrossRefLocationStyle=1
@@ -67,7 +70,7 @@ GenerateClassCluster=0
 DocumentUniqueId=EEQZHYGE
 
 [Document2]
-DocumentPath=..\..\..\..\ece295lib-main\Optocoupler_STM32_REVB.SchDoc
+DocumentPath=Optocoupler_STM32_REVB.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
