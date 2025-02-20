@@ -36,10 +36,10 @@ ConstraintManagerFlow=0
 IsVirtualBomDocumentRemoved=0
 OutputPath=
 LogFolderPath=
-ManagedProjectGUID=503851AE-4723-4C20-8853-A56878602B22
-VaultGUID=8AE3591C-67B3-478E-B83C-5EBC2A4B5C38
-ReleaseVaultName=Chaeyoung Lim
-ItemGUID=503851AE-4723-4C20-8853-A56878602B22
+ManagedProjectGUID=8E852DA0-834E-4582-AB94-FDCA2E669B72
+VaultGUID=1ed2bde7-c90f-444f-ab5b-27e7bad4f025
+ReleaseVaultName=Jonathon Wang - University of Toronto
+ItemGUID=8E852DA0-834E-4582-AB94-FDCA2E669B72
 IncludeDesignInRelease=0
 CrossRefSheetStyle=1
 CrossRefLocationStyle=1
@@ -70,7 +70,7 @@ GenerateClassCluster=0
 DocumentUniqueId=EEQZHYGE
 
 [Document2]
-DocumentPath=..\..\..\..\ece295lib-main\Optocoupler_STM32_REVB.SchDoc
+DocumentPath=Optocoupler_STM32_REVB.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -323,6 +323,11 @@ OutputName3=Test Point Report
 OutputDocumentPath3=
 OutputVariantName3=[No Variations]
 OutputDefault3=0
+OutputType4=Wire Bonding Table
+OutputName4=Wire Bonding Table Report
+OutputDocumentPath4=
+OutputVariantName4=[No Variations]
+OutputDefault4=0
 
 [OutputGroup5]
 Name=Fabrication Outputs
@@ -735,6 +740,7 @@ Type147=1
 Type148=1
 Type149=1
 Type150=1
+Type151=1
 
 [Difference Levels]
 Type1=1
@@ -818,6 +824,7 @@ Type78=1
 Type79=1
 Type80=1
 Type81=1
+Type82=1
 
 [Electrical Rules Check]
 Type1=1
@@ -973,6 +980,14 @@ Type150=2
 Type151=2
 Type152=1
 Type153=1
+Type154=0
+Type155=0
+Type156=0
+Type157=0
+Type158=0
+Type159=0
+Type160=0
+Type161=0
 
 [ERC Connection Matrix]
 L1=NNNNNNNNNNNWNNNWW
