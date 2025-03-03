@@ -1,0 +1,15 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [BME498_PCB.PcbDoc]
+   Generated File[BME498_PCB-RoundHoles-Plated.TXT]
+   Generated File[BME498_PCB-RoundHoles-NonPlated.TXT]
+   Generated File[BME498_PCB-SlotHoles-Plated.TXT]
+   Generated File[BME498_PCB-RectHoles-NonPlated.TXT]
+   Generated File[BME498_PCB.LDP]
+   Generated File[BME498_PCB.DRR]
+
+
+Files Generated   : 6
+Documents Printed : 0
+
+Finished Output Generation At 10:43:56 PM On 2025-03-02

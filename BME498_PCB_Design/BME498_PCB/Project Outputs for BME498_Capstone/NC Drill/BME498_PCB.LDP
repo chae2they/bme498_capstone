@@ -1,0 +1,5 @@
+Layer Pairs Export File for PCB: C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\BME498_PCB.PcbDoc
+LayersSetName=Top_Bot_Plated_Thru_Holes|DrillFile=bme498_pcb-roundholes-plated.txt|DrillLayers=gtl,gbl
+LayersSetName=Top_Bot_Plated_Slot_Holes|DrillFile=bme498_pcb-slotholes-plated.txt|DrillLayers=gtl,gbl
+LayersSetName=Top_Bot_NonPlated_Thru_Holes|DrillFile=bme498_pcb-roundholes-nonplated.txt|DrillLayers=gtl,gbl
+LayersSetName=Top_Bot_NonPlated_Rect_Holes|DrillFile=bme498_pcb-rectholes-nonplated.txt|DrillLayers=gtl,gbl

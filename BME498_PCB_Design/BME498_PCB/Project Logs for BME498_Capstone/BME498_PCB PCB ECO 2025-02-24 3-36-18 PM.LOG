@@ -1,0 +1,6 @@
+Change Component Designator: OldDesignator=R_Pull_1 NewDesignator=R_Pull1
+Change Component Designator: OldDesignator=R_Pull_3 NewDesignator=R_Pull3
+Change Component Designator: OldDesignator=R_Pull_4 NewDesignator=R_Pull4
+Change Component Designator: OldDesignator=U1 NewDesignator=U2
+Change Component Designator: OldDesignator=U2 NewDesignator=U1
+Added Member To Class: ClassName=OptocouplerSchDoc Member=Component R8 500

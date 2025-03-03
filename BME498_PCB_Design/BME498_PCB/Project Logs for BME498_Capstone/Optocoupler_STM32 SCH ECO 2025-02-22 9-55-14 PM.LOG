@@ -1,0 +1,73 @@
+Replace Part C1 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C2 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C3 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C4 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C5 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C6 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C7 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Replace Part C8 CAP ALUM 15UF 20% 16V RADIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with CAP ALUM 15UF 20% 16V RADIAL from ECE295-Capacitors-TH.IntLib
+Update Managed Component D1 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D2 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D3 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D4 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D5 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D6 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D7 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component D8 From CMP-22017-000005-2[TST-C190GKT] To CMP-22017-000005-2[LTST-C190GKT] in Optocoupler_STM32.SchDoc
+Update Managed Component J1 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J2 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J3 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J4 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J5 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J6 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J7 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component J8 From CMP-1692-00002-1[RCJ-041] To CMP-1692-00002-1[RCJ-041] in Optocoupler_STM32.SchDoc
+Update Managed Component Q1 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q2 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q3 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q4 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q5 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q6 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q7 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Update Managed Component Q8 From CMP-65434-000005-1[PC817XNNIP0F] To CMP-65434-000005-1[PC817XNNIP0F] in Optocoupler_STM32.SchDoc
+Replace Part R1 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R2 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R3 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R4 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R5 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R6 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R7 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R8 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN1 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN2 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN3 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN4 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN5 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN6 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN7 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part R_IN8 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF1 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF2 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF3 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF4 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF5 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF6 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF7 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RF8 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL1 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL2 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL3 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL4 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL5 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL6 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL7 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Replace Part RL8 RES 10 OHM 5% 1/4W AXIAL in C:\Users\jonat\OneDrive\Desktop\School Work\BME498\BME498_PCB_Design\BME498_PCB\Optocoupler_STM32.SchDoc with RES 10 OHM 5% 1/4W AXIAL from ECE295-Resistors-TH.IntLib
+Update Managed Component U1 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U2 From CMP-12105-000067-1[STM32F446ZET6] To CMP-12105-000067-1[STM32F446ZET6] in Optocoupler_STM32.SchDoc
+Update Managed Component U3 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U4 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U5 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U6 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U7 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U8 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc
+Update Managed Component U9 From CMP-1310-00098-1[LM358N] To CMP-1310-00098-1[LM358N] in Optocoupler_STM32.SchDoc

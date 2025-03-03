@@ -1,2 +1,2 @@
-Record=TopLevelDocument|FileName=Optocoupler_STM32.SchDoc|SheetNumber=1
-Record=NoMainPathDocument|SourceDocument=Optocoupler_STM32.SchDoc|FileName=STM32_Power_Reg.SchDoc|SheetNumber=2
+Record=TopLevelDocument|FileName=OptocouplerSchDoc.SchDoc|SheetNumber=1
+Record=NoMainPathDocument|SourceDocument=OptocouplerSchDoc.SchDoc|FileName=STM32_Peripherals.SchDoc|SheetNumber=2
