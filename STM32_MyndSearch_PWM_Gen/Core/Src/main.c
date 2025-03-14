@@ -47,32 +47,37 @@ uint8_t test[8] = {128, 0, 0, 0, 0 , 0, 0, 0};
 // 2 and 3 for channel 2, low, high, etc.
 uint8_t duty_cycle_limits[16] = {0};
 
-//Update PWM Function - MEANT TO BE USED DURING OPERATION, NOT FOR TUNING
-static void updatePWMValues(uint8_t* newDutyCycle){
-	 int dutyCycle[8] = {0};
-	 dutyCycle[0] = (newDutyCycle[0] * 10000) / 255; //tim2 ch1
-	//dutyCycle[1] = (newDutyCycle[1] * (999+1)) / 255; //tim2 ch2
+//Update PWM Function - MEANT TO BE USED DURING OPERATION, NOT FOR TUNING, need to map it to dlow dhigh range
+static void updatePWMValues(uint8_t* newDutyCycle) {
+    int dutyCycle[8] = {0};
 
-	//dutyCycle[2] = (newDutyCycle[2] * (799+1)) / 255; //tim3 ch1
-	//dutyCycle[3] = (newDutyCycle[3] * (799+1)) / 255; //tim3 ch4
+    for (int i = 0; i < 8; i++) {
+        uint8_t index_low = i * 2;
+        uint8_t index_high = index_low + 1;
 
-	//dutyCycle[4] = (newDutyCycle[4] * (999+1)) / 255; //tim4 ch1
-	//dutyCycle[5] = (newDutyCycle[5] * (999+1)) / 255; //tim4 ch2
+        // Get the stored Dlow and Dhigh values
+        //uint8_t Dlow = duty_cycle_limits[index_low];
+        //uint8_t Dhigh = duty_cycle_limits[index_high];
+        uint8_t Dlow = 0;
+        uint8_t Dhigh = 255;
 
-	//dutyCycle[6] = (newDutyCycle[6] * (799+1)) / 255; //tim8 ch1
-	//dutyCycle[7] = (newDutyCycle[7] * (799+1)) / 255; //tim8 ch2
+        // Scale the input value (0-255) to the range between Dlow and Dhigh
+        dutyCycle[i] =  255 - (Dlow + ((newDutyCycle[i] * (Dhigh - Dlow)) / 255));
 
-	    TIM2->CCR1 = dutyCycle[0];
-	    //TIM2->CCR2 = dutyCycle[1];
-
-	    //TIM3->CCR1 = dutyCycle[2];
-	    //TIM3->CCR2 = dutyCycle[3];
-
-	    //TIM4->CCR1 = dutyCycle[4];
-	    //TIM4->CCR2 = dutyCycle[5];
-
-	    //TIM8->CCR1 = dutyCycle[6];
-	    //TIM8->CCR3 = dutyCycle[7];
+        // Apply the updated duty cycle to the corresponding PWM channel
+        switch (i + 1) {
+            case 1: TIM3->CCR2 = (dutyCycle[i] * ((TIM3->ARR)+1) ) / 255; break;
+            case 2: TIM3->CCR1 = (dutyCycle[i] * ((TIM3->ARR)+1) ) / 255; break;
+            case 3: TIM2->CCR1 = (dutyCycle[i] * ((TIM2->ARR)+1) ) / 255; break;
+            case 4: TIM4->CCR1 = (dutyCycle[i] * ((TIM4->ARR)+1) ) / 255; break;
+            case 5: TIM4->CCR2 = (dutyCycle[i] * ((TIM4->ARR)+1) ) / 255; break;
+            case 6: TIM2->CCR2 = (dutyCycle[i] * ((TIM2->ARR)+1) ) / 255; break;
+            case 7: TIM8->CCR1 = (dutyCycle[i] * ((TIM8->ARR)+1) ) / 255; break;
+            case 8: TIM8->CCR3 = (dutyCycle[i] * ((TIM8->ARR)+1) ) / 255; break;
+        }
+    }
+     //dutyCycle [0] = (newDutyCycle[0] * 10000) / 255;
+     //TIM3->CCR2 = dutyCycle[0];
 }
 
 // Test Rotary Encoder
@@ -99,122 +104,86 @@ void RotaryEncoderTest(){
 }
 
 // Actual Rotary Encoder Usage
-void Set_DLow_and_DHigh_For_Channel(uint8_t channel){
-	if(channel == 0 || channel >=9)
-	{
-		return;
-	}
+void Set_DLow_and_DHigh_For_Channel(uint8_t channel) {
+    if (channel == 0 || channel >= 9) {
+        return;
+    }
 
-	uint8_t index_low = (channel-1)*2;
-	uint8_t index_high = index_low + 1;
+    uint8_t index_low = (channel - 1) * 2;
+    uint8_t index_high = index_low + 1;
 
-	// Initialize both duty cycle limits and counter to 0
-	duty_cycle_limits[index_low] = 0;
-	duty_cycle_limits[index_high] = 0;
-	TIM5->CNT = 0;
+    // Initialize both duty cycle limits and reset encoder count
+    duty_cycle_limits[index_low] = 0;
+    duty_cycle_limits[index_high] = 0;
+    TIM5->CNT = 0;
 
-	TurnOffAllChannelLED();
+    TurnOffAllChannelLED();
 
-	// First lock into tuning lower index.
-	// PWM for JUST THIS CHANNEL should be running, with the duty cycle being set here.
-	while(1){
-		duty_cycle_limits[index_low] = (TIM5->CNT)>>2;
-		int low_duty_cycle = (duty_cycle_limits[index_low] * 10000) / 255; //tim2 ch1
-		SetLevelLED(duty_cycle_limits[index_low]);
+    uint8_t step = 0; // 0 = tuning Dlow, 1 = tuning Dhigh
 
-		switch(channel){
-			case 1:
-				HAL_GPIO_WritePin(GPIOE, Ch1LowLED_Pin, GPIO_PIN_SET);
-				TIM2->CCR1 = low_duty_cycle;	// Set duty cycle so that we can tune as we see it
-				break;
-			case 2:
-				HAL_GPIO_WritePin(GPIOC, Ch2LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 2
-				break;
-			case 3:
-				HAL_GPIO_WritePin(GPIOF, Ch3LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 3
-				break;
-			case 4:
-				HAL_GPIO_WritePin(GPIOG, Ch4LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 4
-				break;
-			case 5:
-				HAL_GPIO_WritePin(GPIOG, Ch5LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 5
-				break;
-			case 6:
-				HAL_GPIO_WritePin(GPIOD, Ch6LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 6
-				break;
-			case 7:
-				HAL_GPIO_WritePin(GPIOF, Ch7LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 7
-				break;
-			case 8:
-				HAL_GPIO_WritePin(GPIOF, Ch8LowLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 8
-				break;
-			default:
-		}
+    while (step < 2) {
+        uint8_t index = (step == 0) ? index_low : index_high;
+        duty_cycle_limits[index] = (TIM5->CNT) >> 2;
 
-		// Push certain button to move onto tuning high
-		if(!HAL_GPIO_ReadPin(GPIOA, SetupButton_Pin)) {
-			break;
-		}
-	}
+        // Ensure values are within valid range (0-255)
+        if (duty_cycle_limits[index] > 255) duty_cycle_limits[index] = 255;
+        SetLevelLED(duty_cycle_limits[index_low]); //led bar
+        uint32_t arr_value = 0;
 
-	TurnOffAllChannelLED();
+        // Update PWM and turn on corresponding LED for selected channel
+        switch (channel) {
+            case 1: arr_value = TIM3->ARR;
+                    HAL_GPIO_WritePin(GPIOE, (step == 0) ? Ch1LowLED_Pin : Ch1HighLED_Pin, GPIO_PIN_SET);
+                    TIM3->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 2: arr_value = TIM4->ARR;
+                    HAL_GPIO_WritePin(GPIOC, (step == 0) ? Ch2LowLED_Pin : Ch2HighLED_Pin, GPIO_PIN_SET);
+                    TIM4->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 3: arr_value = TIM2->ARR;
+                    HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch3LowLED_Pin : Ch3HighLED_Pin, GPIO_PIN_SET);
+                    TIM2->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 4: arr_value = TIM2->ARR;
+                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch4LowLED_Pin : Ch4HighLED_Pin, GPIO_PIN_SET);
+                    TIM2->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 5: arr_value = TIM3->ARR;
+                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch5LowLED_Pin : Ch5HighLED_Pin, GPIO_PIN_SET);
+                    TIM3->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 6: arr_value = TIM4->ARR;
+                    HAL_GPIO_WritePin(GPIOD, (step == 0) ? Ch6LowLED_Pin : Ch6HighLED_Pin, GPIO_PIN_SET);
+                    TIM4->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 7: arr_value = TIM8->ARR;
+                    HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch7LowLED_Pin : Ch7HighLED_Pin, GPIO_PIN_SET);
+                    TIM8->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+            case 8: arr_value = TIM8->ARR;
+                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch8LowLED_Pin : Ch8HighLED_Pin, GPIO_PIN_SET);
+                    TIM8->CCR3 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    break;
+        }
 
-	// Now lock into tuning high index.
-	// PWM should still be running just for THIS CHANNEL
-	while(1){
-		duty_cycle_limits[index_high] = (TIM5->CNT)>>2;
-		int high_duty_cycle = (duty_cycle_limits[index_high] * 10000) / 255; //tim2 ch1
-		SetLevelLED(duty_cycle_limits[index_high]);
+        // Move `SetLevelLED()` here to ensure LEDs update before `continue;
+        SetLevelLED(duty_cycle_limits[index]);
 
-		switch(channel){
-			case 1:
-				HAL_GPIO_WritePin(GPIOE, Ch1HighLED_Pin, GPIO_PIN_SET);
-				TIM2->CCR1 = high_duty_cycle;	// Set duty cycle so that we can tune as we see it
-				break;
-			case 2:
-				HAL_GPIO_WritePin(GPIOC, Ch2HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 2
-				break;
-			case 3:
-				HAL_GPIO_WritePin(GPIOF, Ch3HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 3
-				break;
-			case 4:
-				HAL_GPIO_WritePin(GPIOG, Ch4HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 4
-				break;
-			case 5:
-				HAL_GPIO_WritePin(GPIOG, Ch5HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 5
-				break;
-			case 6:
-				HAL_GPIO_WritePin(GPIOD, Ch6HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 6
-				break;
-			case 7:
-				HAL_GPIO_WritePin(GPIOF, Ch7HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 7
-				break;
-			case 8:
-				HAL_GPIO_WritePin(GPIOG, Ch8HighLED_Pin, GPIO_PIN_SET);
-				// FOR CHANNEL 8
-				break;
-			default:
-		}
+        // Check if the setup button is pressed to move to the next step
+        if (HAL_GPIO_ReadPin(GPIOA, SetupButton_Pin) == 0) {
 
-		// Push certain button to move onto tuning high
-		if(!HAL_GPIO_ReadPin(GPIOA, SetupButton_Pin)) {
-			break;
-		}
-	}
-	TurnOffAllChannelLED();
+            HAL_Delay(50);  // Debounce delay
+
+            // Confirm that the button is still pressed after debounce time
+            if (HAL_GPIO_ReadPin(GPIOA, SetupButton_Pin) == 0) {
+                step++;  // Move to the next step (Dlow → Dhigh)
+                TurnOffAllChannelLED();  // Reset LEDs before the next step
+                TIM5->CNT = 0;  // Reset encoder count for the next step
+            }
+        }
+    }
+
+    TurnOffAllChannelLED();
 }
 
 void TurnOffAllChannelLED(){
@@ -264,7 +233,7 @@ void SetLevelLED(uint8_t level) {
 	TurnAllLevelLEDOff();
 
 	// Fall through and set all LEDs below level on to indicate that much power via LED
-	switch(uint8_t(level/21)){
+	switch((uint8_t)(level/21)){
 	case 12:
 		HAL_GPIO_WritePin(GPIOD, LevelLED12_Pin, GPIO_PIN_SET);
 	case 11:
@@ -298,7 +267,7 @@ void SetLevelLED(uint8_t level) {
 void Flash_LED(){
 	HAL_GPIO_TogglePin (GPIOB, LED1_Pin);
 	HAL_GPIO_TogglePin (GPIOB, LED2_Pin);
-	HAL_GPIO_TogglePin (GPIOB, LED3_Pin);
+	HAL_GPIO_TogglePin (GPIOA, LED3_Pin);
 	HAL_Delay(500);
 }
 
@@ -338,6 +307,7 @@ void USB_CDC_RxHandler(uint8_t* Buf, uint32_t Len)
 	for(int i = 0; i<8; i++){
 		channel_value[i] = Buf[i];
 	}
+	//currentState = SETUP_STATE;
 //	HAL_GPIO_TogglePin (GPIOB, LED2_Pin);
 }
 /* USER CODE END PD */
@@ -372,6 +342,87 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+enum SystemState {
+
+		IDLE_MODE,
+		SETUP_STATE,
+		RUNNING_STATE,
+		ERROR_MODE
+
+};
+
+/*void System_Run() {
+    SystemState currentState = IDLE_MODE;
+
+    while(1){
+        switch(currentState){
+            case IDLE_MODE:
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
+                if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0) {
+                    HAL_Delay(50);
+                    if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0){
+                    currentState = SETUP_MODE;
+                    }
+                }
+                break;
+
+            case SETUP_STATE:
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_SET); // Setup LED ON
+
+                // Check if any channel button is pressed
+                for (uint8_t ch = 1; ch <= 8; ch++) {
+                    if (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin)) {
+
+                        HAL_Delay(50); // Short debounce
+
+                        // Check again to confirm button is still pressed (double debounce)
+                        if (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin)) {
+                            Set_DLow_and_DHigh_For_Channel(ch);
+
+                            // Wait for button release to avoid repeated triggering
+                            while (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin));
+                            HAL_Delay(50); // ensure stable release
+                        }
+                    }
+                }
+
+                // Check if setup button is pressed to exit setup state
+                if (!HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin)) {
+                    HAL_Delay(50); // Debounce
+                    if (!HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin)) {  // Confirm button press
+                        //HAL_Delay(50);
+                        currentState = RUNNING_STATE;  // Exit setup mode
+                    }
+                }
+                break;
+
+
+            case RUNNING_STATE:
+                updatePWMValues(channel_value);
+
+                if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0) {
+                    HAL_Delay(50);
+                    if(HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0){
+                    	currentState = SETUP_MODE;
+                    }
+                }
+                break;
+
+            case ERROR_MODE:
+                //  Error Handling
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, LED1_Pin, GPIO_PIN_SET); // Error LED ON
+
+                // Reset system after error
+                currentState = IDLE_MODE;
+                break;
+
+            default:
+                currentState = ERROR_MODE;
+                break;
+        }
+    }
+}*/
 
 /* USER CODE END 0 */
 
@@ -424,35 +475,42 @@ int main(void)
    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
 
    HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
-   //TIM2->CCR1 = 5000;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+
 	  // Basic LED Blink Test to make sure that your MCU can be programmed.
-	  // Flash_LED();
+//	   Flash_LED();
 
 	  // Testing dynamic memory writing with just the user LED for testing
 	  // Display_First_Channel_Smallest3Bits();
 
 	  // PWM update call
-	  // updatePWMValues(test);
+	   //updatePWMValues(test);
 
 	  // Test Rotary Encoder
 	  // RotaryEncoderTest();
 
-	  {
+
 		  // CALIBRATION SECTION WOULD LOOK LIKE THIS:
 		  // 1. SET ALL PWM DUTY CYCLE TO 0
 		  TIM2->CCR1 = 0;
 		  TIM2->CCR2 = 0;
+		  TIM3->CCR1 = 0;
+		  TIM3->CCR2 = 0;
+		  TIM4->CCR1 = 0;
+		  TIM4->CCR2 = 0;
+		  TIM8->CCR1 = 0;
+		  TIM8->CCR3 = 0;
 		  // TODO: Rest of timer here...
 
 		  // 2. If there's button press, call Set_DLow_and_DHigh_For_Channel for that button
 		  // Note that Set_DLow_and_DHigh_For_Channel() is a BLOCKING FUNCTION. Only external things like PWM runs
-		  if(!HAL_GPIO_ReadPin(Ch1Button_GPIO_Port, Ch1Button_Pin)) {
+
+		  //System_Run();
+		  /*if(!HAL_GPIO_ReadPin(Ch1Button_GPIO_Port, Ch1Button_Pin)) {
 			  Set_DLow_and_DHigh_For_Channel(1);
 		  }
 		  else if(!HAL_GPIO_ReadPin(Ch2Button_GPIO_Port, Ch2Button_Pin)) {
@@ -483,13 +541,21 @@ int main(void)
 		  }
 
 		  // Otherwise just loop and wait for button presses
-	  }
-  }
+	  }*/
+
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		  while(1){
+			  // Basic LED Blink Test to make sure that your MCU can be programmed.
+			  	   //Flash_LED();
+			  // PWM update call
+			  	  updatePWMValues(channel_value);
+			  	 //updatePWMValues(test);
 
+		  }
+		  return 0;
   /* USER CODE END 3 */
 }
 
@@ -510,15 +576,14 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 72;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 3;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 96;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -529,8 +594,8 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -562,7 +627,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 999;
+  htim2.Init.Period = 9999;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -623,9 +688,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 3;
+  htim3.Init.Prescaler = 7;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 799;
+  htim3.Init.Period = 9999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -688,7 +753,7 @@ static void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 7;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 999;
+  htim4.Init.Period = 9999;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -799,9 +864,9 @@ static void MX_TIM8_Init(void)
 
   /* USER CODE END TIM8_Init 1 */
   htim8.Instance = TIM8;
-  htim8.Init.Prescaler = 1;
+  htim8.Init.Prescaler = 7;
   htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim8.Init.Period = 799;
+  htim8.Init.Period = 9999;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim8.Init.RepetitionCounter = 0;
   htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
