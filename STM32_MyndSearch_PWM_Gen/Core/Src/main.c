@@ -33,9 +33,33 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+#define DEBOUNCE_THRESHOLD 3
+
+/*uint8_t debounceButton(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
+    static uint8_t counter = 0;  // Debounce counter
+    static uint8_t buttonState = 0;  // Stores the stable state of the button
+
+    if (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == GPIO_PIN_RESET) {
+        if (counter < DEBOUNCE_THRESHOLD) counter++;
+    } else {
+        if (counter > 0) counter--;
+    }
+
+    if (counter >= DEBOUNCE_THRESHOLD) {
+        buttonState = 1;
+    } else {
+        buttonState = 0;
+    }
+
+    return buttonState;
+}*/
+
+
+
 // RELEVANT VARIABLES/ARRAYS
 //value from usb
 uint8_t channel_value[8] = {0};
+
 
 //duty cycle value
 //uint8_t dutyCycle[8] = {0};
@@ -51,18 +75,22 @@ uint8_t duty_cycle_limits[16] = {0};
 static void updatePWMValues(uint8_t* newDutyCycle) {
     int dutyCycle[8] = {0};
 
+      uint8_t TxBuffer[100] = {'\0'};
+      uint8_t TxBufferLen = 100;
+
     for (int i = 0; i < 8; i++) {
         uint8_t index_low = i * 2;
         uint8_t index_high = index_low + 1;
 
         // Get the stored Dlow and Dhigh values
-        //uint8_t Dlow = duty_cycle_limits[index_low];
-        //uint8_t Dhigh = duty_cycle_limits[index_high];
-        uint8_t Dlow = 0;
-        uint8_t Dhigh = 255;
+        uint8_t Dlow = duty_cycle_limits[index_low];
+        uint8_t Dhigh = duty_cycle_limits[index_high];
+        //uint8_t Dlow = 0;
+        //uint8_t Dhigh = 255;
 
         // Scale the input value (0-255) to the range between Dlow and Dhigh
-        dutyCycle[i] =  255 - (Dlow + ((newDutyCycle[i] * (Dhigh - Dlow)) / 255));
+        // This produces an integer that may range from 0 to 255
+        dutyCycle[i] =  (Dlow +  (((255 - newDutyCycle[i]) * (Dhigh - Dlow)) / 255));
 
         // Apply the updated duty cycle to the corresponding PWM channel
         switch (i + 1) {
@@ -78,6 +106,8 @@ static void updatePWMValues(uint8_t* newDutyCycle) {
     }
      //dutyCycle [0] = (newDutyCycle[0] * 10000) / 255;
      //TIM3->CCR2 = dutyCycle[0];
+    //sprintf(TxBuffer, "channel1 duty cycle = %d\n", TIM3->CCR2);
+    //CDC_Transmit_FS(TxBuffer, TxBufferLen);
 }
 
 // Test Rotary Encoder
@@ -108,6 +138,8 @@ void Set_DLow_and_DHigh_For_Channel(uint8_t channel) {
     if (channel == 0 || channel >= 9) {
         return;
     }
+	uint8_t TxBuffer[100] = {'\0'};
+	uint8_t TxBufferLen = 100;
 
     uint8_t index_low = (channel - 1) * 2;
     uint8_t index_high = index_low + 1;
@@ -125,44 +157,113 @@ void Set_DLow_and_DHigh_For_Channel(uint8_t channel) {
         uint8_t index = (step == 0) ? index_low : index_high;
         duty_cycle_limits[index] = (TIM5->CNT) >> 2;
 
+
         // Ensure values are within valid range (0-255)
         if (duty_cycle_limits[index] > 255) duty_cycle_limits[index] = 255;
         SetLevelLED(duty_cycle_limits[index_low]); //led bar
+        if(step == 1) SetLevelLED(duty_cycle_limits[index_high]);
         uint32_t arr_value = 0;
 
+        sprintf(TxBuffer, "step = %d\n\r,\n duty cycle = %d\n\r,\n index = %d\n\r,\n channel = %d\n\r,\n", step, duty_cycle_limits[index], index, channel);
+        		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+        		HAL_Delay(1000);
         // Update PWM and turn on corresponding LED for selected channel
         switch (channel) {
             case 1: arr_value = TIM3->ARR;
-                    HAL_GPIO_WritePin(GPIOE, (step == 0) ? Ch1LowLED_Pin : Ch1HighLED_Pin, GPIO_PIN_SET);
-                    TIM3->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    //HAL_GPIO_WritePin(GPIOE, (step == 0) ? Ch1LowLED_Pin : Ch1HighLED_Pin, GPIO_PIN_SET);
+                    HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+					if(step == 0){
+						HAL_GPIO_WritePin(Ch1LowLED_GPIO_Port, Ch1LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch1HighLED_GPIO_Port, Ch1HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch1HighLED_GPIO_Port, Ch1HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch1LowLED_GPIO_Port, Ch1LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM3->CCR2 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
-            case 2: arr_value = TIM4->ARR;
-                    HAL_GPIO_WritePin(GPIOC, (step == 0) ? Ch2LowLED_Pin : Ch2HighLED_Pin, GPIO_PIN_SET);
-                    TIM4->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+            case 2: arr_value = TIM3->ARR;
+                    //HAL_GPIO_WritePin(GPIOC, (step == 0) ? Ch2LowLED_Pin : Ch2HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+					if(step == 0){
+						HAL_GPIO_WritePin(Ch2LowLED_GPIO_Port, Ch2LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch2HighLED_GPIO_Port, Ch2HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch2HighLED_GPIO_Port, Ch2HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch2LowLED_GPIO_Port, Ch2LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM3->CCR1 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
             case 3: arr_value = TIM2->ARR;
-                    HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch3LowLED_Pin : Ch3HighLED_Pin, GPIO_PIN_SET);
-                    TIM2->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    //HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch3LowLED_Pin : Ch3HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+					if(step == 0){
+						HAL_GPIO_WritePin(Ch3LowLED_GPIO_Port, Ch3LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch3HighLED_GPIO_Port, Ch3HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch3HighLED_GPIO_Port, Ch3HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch3LowLED_GPIO_Port, Ch3LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM2->CCR1 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
-            case 4: arr_value = TIM2->ARR;
-                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch4LowLED_Pin : Ch4HighLED_Pin, GPIO_PIN_SET);
-                    TIM2->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+            case 4: arr_value = TIM4->ARR;
+                    //HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch4LowLED_Pin : Ch4HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+					if(step == 0){
+						HAL_GPIO_WritePin(Ch4LowLED_GPIO_Port, Ch4LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch4HighLED_GPIO_Port, Ch4HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch4HighLED_GPIO_Port, Ch4HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch4LowLED_GPIO_Port, Ch4LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM4->CCR1 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
-            case 5: arr_value = TIM3->ARR;
-                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch5LowLED_Pin : Ch5HighLED_Pin, GPIO_PIN_SET);
-                    TIM3->CCR2 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+            case 5: arr_value = TIM4->ARR;
+                    //HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch5LowLED_Pin : Ch5HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+            		if(step == 0){
+						HAL_GPIO_WritePin(Ch5LowLED_GPIO_Port, Ch5LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch5HighLED_GPIO_Port, Ch5HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch5HighLED_GPIO_Port, Ch5HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch5LowLED_GPIO_Port, Ch5LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM4->CCR2 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
-            case 6: arr_value = TIM4->ARR;
-                    HAL_GPIO_WritePin(GPIOD, (step == 0) ? Ch6LowLED_Pin : Ch6HighLED_Pin, GPIO_PIN_SET);
-                    TIM4->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+            case 6: arr_value = TIM2->ARR;
+                    //HAL_GPIO_WritePin(GPIOD, (step == 0) ? Ch6LowLED_Pin : Ch6HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+					if(step == 0){
+						HAL_GPIO_WritePin(Ch6LowLED_GPIO_Port, Ch6LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch6HighLED_GPIO_Port, Ch6HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch6HighLED_GPIO_Port, Ch6HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch6LowLED_GPIO_Port, Ch6LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM2->CCR2 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
             case 7: arr_value = TIM8->ARR;
-                    HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch7LowLED_Pin : Ch7HighLED_Pin, GPIO_PIN_SET);
-                    TIM8->CCR1 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    //HAL_GPIO_WritePin(GPIOF, (step == 0) ? Ch7LowLED_Pin : Ch7HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+                    if(step == 0){
+						HAL_GPIO_WritePin(Ch7LowLED_GPIO_Port, Ch7LowLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch7HighLED_GPIO_Port, Ch7HighLED_Pin,GPIO_PIN_RESET);
+					 } else if(step == 1){
+						HAL_GPIO_WritePin(Ch7HighLED_GPIO_Port, Ch7HighLED_Pin,GPIO_PIN_SET);
+						HAL_GPIO_WritePin(Ch7LowLED_GPIO_Port, Ch7LowLED_Pin,GPIO_PIN_RESET);
+					 }
+                    TIM8->CCR1 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
             case 8: arr_value = TIM8->ARR;
-                    HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch8LowLED_Pin : Ch8HighLED_Pin, GPIO_PIN_SET);
-                    TIM8->CCR3 = (duty_cycle_limits[index] * (arr_value+1)) / 255;
+                    //HAL_GPIO_WritePin(GPIOG, (step == 0) ? Ch8LowLED_Pin : Ch8HighLED_Pin, GPIO_PIN_SET);
+            		HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); //setup led off
+                    if(step == 0){
+                    	HAL_GPIO_WritePin(Ch8LowLED_GPIO_Port, Ch8LowLED_Pin,GPIO_PIN_SET);
+                    	HAL_GPIO_WritePin(Ch8HighLED_GPIO_Port, Ch8HighLED_Pin,GPIO_PIN_RESET);
+                    } else if(step == 1){
+                    	HAL_GPIO_WritePin(Ch8HighLED_GPIO_Port, Ch8HighLED_Pin,GPIO_PIN_SET);
+                    	HAL_GPIO_WritePin(Ch8LowLED_GPIO_Port, Ch8LowLED_Pin,GPIO_PIN_RESET);
+                    }
+                    TIM8->CCR3 = (((255 - duty_cycle_limits[index]) * (arr_value+1)) / 255);
                     break;
         }
 
@@ -177,7 +278,7 @@ void Set_DLow_and_DHigh_For_Channel(uint8_t channel) {
             // Confirm that the button is still pressed after debounce time
             if (HAL_GPIO_ReadPin(GPIOA, SetupButton_Pin) == 0) {
                 step++;  // Move to the next step (Dlow → Dhigh)
-                TurnOffAllChannelLED();  // Reset LEDs before the next step
+                TurnAllLevelLEDOff();  // Reset LEDs before the next step
                 TIM5->CNT = 0;  // Reset encoder count for the next step
             }
         }
@@ -344,53 +445,248 @@ static void MX_TIM5_Init(void);
 /* USER CODE BEGIN 0 */
 enum SystemState {
 
-		IDLE_MODE,
+		IDLE_STATE,
 		SETUP_STATE,
 		RUNNING_STATE,
-		ERROR_MODE
+		ERROR_STATE
 
 };
 
-/*void System_Run() {
-    SystemState currentState = IDLE_MODE;
+//#define DEBOUNCE_DELAY 50       // Debounce time for button press
+#define SHORT_PRESS_DELAY 500   // Short press allows configuring another channel
+#define LONG_PRESS_DELAY 5000   // Long press moves to running mode
 
-    while(1){
-        switch(currentState){
-            case IDLE_MODE:
+
+
+uint32_t lastPressTime[9] = {0}; // Stores timestamps for all buttons
+uint8_t channelsConfigured = 0;  // Keeps track of configured channels
+
+// Function to debounce a button
+uint8_t isButtonPressed(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint8_t buttonIndex) {
+    if (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == GPIO_PIN_RESET) {
+        if ((HAL_GetTick() - lastPressTime[buttonIndex]) > DEBOUNCE_DELAY) {
+            lastPressTime[buttonIndex] = HAL_GetTick();
+            return 1;  // Button is debounced
+        }
+    }
+    return 0;  // Button is not pressed or bouncing
+}
+
+void System_Run() {
+    enum SystemState currentState = IDLE_STATE;
+    uint8_t TxBuffer[100] = {'\0'};
+    uint8_t TxBufferLen = 100;
+    uint32_t setupButtonPressTime = 0;
+
+    while (1) {
+        switch (currentState) {
+            case IDLE_STATE:
                 HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
-                if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0) {
-                    HAL_Delay(50);
-                    if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0){
-                    currentState = SETUP_MODE;
-                    }
+
+                if (isButtonPressed(SetupButton_GPIO_Port, SetupButton_Pin, 0)) {
+                    setupButtonPressTime = HAL_GetTick();
+                    currentState = SETUP_STATE;
+                    sprintf(TxBuffer, "Entering setup state\n");
+                    CDC_Transmit_FS(TxBuffer, TxBufferLen);
                 }
                 break;
 
             case SETUP_STATE:
-                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_SET); // Setup LED ON
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_SET);
+                sprintf(TxBuffer, "In setup state - Configure channels\n");
+                CDC_Transmit_FS(TxBuffer, TxBufferLen);
 
-                // Check if any channel button is pressed
-                for (uint8_t ch = 1; ch <= 8; ch++) {
-                    if (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin)) {
+                // Check for channel button presses
+                for (int i = 1; i <= 8; i++) {
+                    GPIO_TypeDef *gpioPort;
+                    uint16_t gpioPin;
 
-                        HAL_Delay(50); // Short debounce
+                    // Assign GPIO ports & pins dynamically
+                    switch (i) {
+                        case 1: gpioPort = Ch1Button_GPIO_Port; gpioPin = Ch1Button_Pin; break;
+                        case 2: gpioPort = Ch2Button_GPIO_Port; gpioPin = Ch2Button_Pin; break;
+                        case 3: gpioPort = Ch3Button_GPIO_Port; gpioPin = Ch3Button_Pin; break;
+                        case 4: gpioPort = Ch4Button_GPIO_Port; gpioPin = Ch4Button_Pin; break;
+                        case 5: gpioPort = Ch5Button_GPIO_Port; gpioPin = Ch5Button_Pin; break;
+                        case 6: gpioPort = Ch6Button_GPIO_Port; gpioPin = Ch6Button_Pin; break;
+                        case 7: gpioPort = Ch7Button_GPIO_Port; gpioPin = Ch7Button_Pin; break;
+                        case 8: gpioPort = Ch8Button_GPIO_Port; gpioPin = Ch8Button_Pin; break;
+                    }
 
-                        // Check again to confirm button is still pressed (double debounce)
-                        if (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin)) {
-                            Set_DLow_and_DHigh_For_Channel(ch);
-
-                            // Wait for button release to avoid repeated triggering
-                            while (!HAL_GPIO_ReadPin(ChannelButtons[ch - 1].GPIO_Port, ChannelButtons[ch - 1].Pin));
-                            HAL_Delay(50); // ensure stable release
-                        }
+                    if (isButtonPressed(gpioPort, gpioPin, i)) {
+                        sprintf(TxBuffer, "Button %d pressed! Configuring Channel %d\n", i, i);
+                        CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        Set_DLow_and_DHigh_For_Channel(i);
+                        channelsConfigured++;  // Track how many channels were configured
                     }
                 }
+                HAL_Delay(1000);
+                // Check if setup button is pressed again
+                if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == GPIO_PIN_RESET) {
+                    uint32_t pressDuration = HAL_GetTick() - setupButtonPressTime;
+
+                    if (pressDuration >= LONG_PRESS_DELAY) {
+                        sprintf(TxBuffer, "Long press detected! Moving to RUNNING_STATE\n");
+                        CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        currentState = RUNNING_STATE;
+                    } else if (pressDuration >= SHORT_PRESS_DELAY && pressDuration < LONG_PRESS_DELAY) {
+                        sprintf(TxBuffer, "Short press detected! Allowing another channel setup\n");
+                        CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                    }
+                } else {
+                    setupButtonPressTime = HAL_GetTick(); // Reset when button is released
+                }
+                break;
+
+            case RUNNING_STATE:
+                updatePWMValues(channel_value);
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
+                Flash_LED();
+
+                sprintf(TxBuffer, "duty cycle channel 1 low = %d \n , high = %d  \n" , duty_cycle_limits[0], duty_cycle_limits[1]);
+                CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                HAL_Delay(50);
+
+                sprintf(TxBuffer, "duty cycle channel 2 low = %d \n , high = %d  \n" , duty_cycle_limits[2], duty_cycle_limits[3]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 3 low = %d \n , high = %d  \n" , duty_cycle_limits[4], duty_cycle_limits[5]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 4 low = %d \n , high = %d  \n" , duty_cycle_limits[6], duty_cycle_limits[7]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 5 low = %d \n , high = %d  \n" , duty_cycle_limits[8], duty_cycle_limits[9]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 6 low = %d \n , high = %d  \n" , duty_cycle_limits[10], duty_cycle_limits[11]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 7 low = %d \n , high = %d  \n" , duty_cycle_limits[12], duty_cycle_limits[13]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+				sprintf(TxBuffer, "duty cycle channel 8 low = %d \n , high = %d  \n" , duty_cycle_limits[14], duty_cycle_limits[15]);
+				CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				HAL_Delay(50);
+
+                if (isButtonPressed(SetupButton_GPIO_Port, SetupButton_Pin, 0)) {
+                    sprintf(TxBuffer, "Setup button pressed! Returning to setup state\n");
+                    CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                    currentState = SETUP_STATE;
+                }
+                break;
+
+            case ERROR_STATE:
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, LED1_Pin, GPIO_PIN_SET);
+                currentState = IDLE_STATE;
+                break;
+
+            default:
+                currentState = ERROR_STATE;
+                break;
+        }
+    }
+}
+
+/*uint8_t lastPressTime = 0;
+void System_Run() {
+    enum SystemState currentState = IDLE_STATE;
+    uint8_t TxBuffer[100] = {'\0'};
+    uint8_t TxBufferLen = 100;
+
+
+    while(1){
+        switch(currentState){
+            case IDLE_STATE:
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
+                if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0 &&
+                                    (HAL_GetTick() - lastPressTime) > DEBOUNCE_DELAY) {
+                                    lastPressTime = HAL_GetTick(); // Update last press time
+                                    currentState = SETUP_STATE;
+                                }
+                sprintf(TxBuffer, "we are in idle\n");
+                       		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                       		HAL_Delay(1000);
+                break;
+
+            case SETUP_STATE:
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_SET); // Setup LED ON
+                sprintf(TxBuffer, "we are in setup\n");
+                       		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                       		HAL_Delay(1000);
+                       		if (HAL_GPIO_ReadPin(Ch1Button_GPIO_Port, Ch1Button_Pin) == 0 &&
+                       		                    (HAL_GetTick() - lastPressTime) > DEBOUNCE_DELAY) {
+                       		                    lastPressTime = HAL_GetTick();
+                       		                    sprintf(TxBuffer, "Button 1 Pressed\n");
+                       		                    CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                       		                    Set_DLow_and_DHigh_For_Channel(1);
+                       		                }
+                          else if(!HAL_GPIO_ReadPin(Ch2Button_GPIO_Port, Ch2Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 2 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(2);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch3Button_GPIO_Port, Ch3Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 3 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(3);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch4Button_GPIO_Port, Ch4Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 4 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(4);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch5Button_GPIO_Port, Ch5Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 5 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(5);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch6Button_GPIO_Port, Ch6Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 6 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(6);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch7Button_GPIO_Port, Ch7Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 7 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(7);
+                          }
+                          else if(!HAL_GPIO_ReadPin(Ch8Button_GPIO_Port, Ch8Button_Pin)) {
+                        	  HAL_Delay(50);
+                        	  sprintf(TxBuffer, "button 8 pressed\n");
+                        	                         		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                        	                         		HAL_Delay(1000);
+                        	  Set_DLow_and_DHigh_For_Channel(8);
+                          }
+                HAL_Delay(1000);
 
                 // Check if setup button is pressed to exit setup state
                 if (!HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin)) {
                     HAL_Delay(50); // Debounce
                     if (!HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin)) {  // Confirm button press
                         //HAL_Delay(50);
+                    	sprintf(TxBuffer, "setup button pressed\n");
+                    	                       		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+                    	                       		HAL_Delay(1000);
                         currentState = RUNNING_STATE;  // Exit setup mode
                     }
                 }
@@ -399,30 +695,91 @@ enum SystemState {
 
             case RUNNING_STATE:
                 updatePWMValues(channel_value);
-
+                HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET); // Setup LED ON
+                Flash_LED();
                 if (HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0) {
                     HAL_Delay(50);
                     if(HAL_GPIO_ReadPin(SetupButton_GPIO_Port, SetupButton_Pin) == 0){
-                    	currentState = SETUP_MODE;
+                    	sprintf(TxBuffer, "setup button pressed... RUN\n");
+						CDC_Transmit_FS(TxBuffer, TxBufferLen);
+						HAL_Delay(1000);
+						//break;
+                    	currentState = SETUP_STATE;
                     }
                 }
                 break;
 
-            case ERROR_MODE:
+            case ERROR_STATE:
                 //  Error Handling
                 HAL_GPIO_WritePin(GPIOC, SetUpStatusLED_Pin, GPIO_PIN_RESET);
                 HAL_GPIO_WritePin(GPIOB, LED1_Pin, GPIO_PIN_SET); // Error LED ON
 
                 // Reset system after error
-                currentState = IDLE_MODE;
+                currentState = IDLE_STATE;
                 break;
 
             default:
-                currentState = ERROR_MODE;
+                currentState = ERROR_STATE;
                 break;
         }
     }
 }*/
+
+void buttonTest(){
+
+	while(1){
+			uint8_t TxBuffer[50] = {'\0'};
+			uint8_t TxBufferLen = 50;
+
+			 if(!HAL_GPIO_ReadPin(Ch1Button_GPIO_Port, Ch1Button_Pin)) {
+				 sprintf(TxBuffer, "CH1 BUTTON PRESSED");
+				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 		//HAL_Delay(100);
+
+		      }
+			  else if(!HAL_GPIO_ReadPin(Ch2Button_GPIO_Port, Ch2Button_Pin)) {
+				  sprintf(TxBuffer, "CH2 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch3Button_GPIO_Port, Ch3Button_Pin)) {
+				  sprintf(TxBuffer, "CH3 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch4Button_GPIO_Port, Ch4Button_Pin)) {
+				  sprintf(TxBuffer, "CH4 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch5Button_GPIO_Port, Ch5Button_Pin)) {
+				  sprintf(TxBuffer, "CH5 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch6Button_GPIO_Port, Ch6Button_Pin)) {
+				  sprintf(TxBuffer, "CH6 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch7Button_GPIO_Port, Ch7Button_Pin)) {
+				  sprintf(TxBuffer, "CH7 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(Ch8Button_GPIO_Port, Ch8Button_Pin)) {
+				  sprintf(TxBuffer, "CH8 BUTTON PRESSED");
+				 				 		CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				 				 		//HAL_Delay(100);
+			  }
+			  else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)){
+				  sprintf(TxBuffer, "setup button pressed");
+				  CDC_Transmit_FS(TxBuffer, TxBufferLen);
+				  //HAL_Delay(100);
+			  }
+
+	}
+}
 
 /* USER CODE END 0 */
 
@@ -496,20 +853,20 @@ int main(void)
 
 		  // CALIBRATION SECTION WOULD LOOK LIKE THIS:
 		  // 1. SET ALL PWM DUTY CYCLE TO 0
-		  TIM2->CCR1 = 0;
-		  TIM2->CCR2 = 0;
-		  TIM3->CCR1 = 0;
-		  TIM3->CCR2 = 0;
-		  TIM4->CCR1 = 0;
-		  TIM4->CCR2 = 0;
-		  TIM8->CCR1 = 0;
-		  TIM8->CCR3 = 0;
+		  TIM2->CCR1 = 9999;
+		  TIM2->CCR2 = 9999;
+		  TIM3->CCR1 = 9999;
+		  TIM3->CCR2 = 9999;
+		  TIM4->CCR1 = 9999;
+		  TIM4->CCR2 = 9999;
+		  TIM8->CCR1 = 9999;
+		  TIM8->CCR3 = 9999;
 		  // TODO: Rest of timer here...
 
 		  // 2. If there's button press, call Set_DLow_and_DHigh_For_Channel for that button
 		  // Note that Set_DLow_and_DHigh_For_Channel() is a BLOCKING FUNCTION. Only external things like PWM runs
 
-		  //System_Run();
+		  System_Run();
 		  /*if(!HAL_GPIO_ReadPin(Ch1Button_GPIO_Port, Ch1Button_Pin)) {
 			  Set_DLow_and_DHigh_For_Channel(1);
 		  }
@@ -551,9 +908,11 @@ int main(void)
 			  // Basic LED Blink Test to make sure that your MCU can be programmed.
 			  	   //Flash_LED();
 			  // PWM update call
-			  	  updatePWMValues(channel_value);
+			  	  //updatePWMValues(channel_value);
 			  	 //updatePWMValues(test);
-
+			  // Test Rotary Encoder
+			  	  //RotaryEncoderTest();
+			  	  //buttonTest();
 		  }
 		  return 0;
   /* USER CODE END 3 */

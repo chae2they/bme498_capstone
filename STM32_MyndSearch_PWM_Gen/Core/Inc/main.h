@@ -142,6 +142,8 @@ void Error_Handler(void);
 #define LED2_Pin GPIO_PIN_7
 #define LED2_GPIO_Port GPIOB
 
+#define DEBOUNCE_DELAY 50
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
