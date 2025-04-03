@@ -11,7 +11,7 @@ This repository contains the following components:
 3. STM32_MyndSearch_PWM_Gen
 	- This is an STM32CubeIDE Project that is used to program the Microcontroller. It handles PWM generation and duty cycle tuning.
 
-4. (To be added) Computer Vision-Based Signal Generation
+4. CV_Protocol_Gen
 	- This is a sample python program that utilizes the Microcontroller System.
 
 5. Other Miscellaneous Folders
